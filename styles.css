@@ -1,0 +1,57 @@
+body {
+    background-color: #2a2a2a;
+}
+
+#map-container {
+    background-color: #1c1c1c;
+    width: 900px;
+    height: 720px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 10px solid #C28840;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    gap: 50px;
+    padding: 30px;
+    margin-top: 20px;
+}
+
+.node {
+    width: 100px;
+    height: 100px;
+    background-color: #333;
+    border: 2px solid #C28840;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    cursor: pointer;
+    color: white;
+    transition: transform 0.3s, ease;
+}
+
+.node:hover {
+    transform: scale(1.1);
+    background-color: #444;
+    box-shadow: 0 0 12px #C28840, 0 0 24px #8F5FE8;
+}
+
+h1 {
+    color: #8F5FE8; /* Arcane Purple - stands out on dark backgrounds */
+    text-align: center;
+    font-family: "UnifrakturCook", cursive;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 55px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px rgba(143, 95, 232, 0.6);
+    margin-top: 18px;
+}
+
