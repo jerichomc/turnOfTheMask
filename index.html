@@ -3,23 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turn of the Mask</title>
+    <title>Echoes of the Mask</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anta&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anta&family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anta&family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <h1>Turn of the Mask</h1>
-    <div id="player-stats"></div>
-    <div id="map-container"></div>
-    <div id="log"></div>
+    <body>
+
+
+        <div id="game-wrapper">
+          <div id="left-sidebar">
+            <h2>Inventory / Stats</h2>
+            <!-- future content here -->
+          </div>
+      
+          <div id="map-container">
+            
+            <div class="map-view">
+              <!-- your node buttons already render here -->
+            </div>
+          </div>
+      
+          <div id="right-sidebar">
+            <h2>Log / Actions / Masks</h2>
+            <!-- future content here -->
+          </div>
+        </div>
+      </body>
+      
+    
     
 
     <script src="./js/map.js"></script>
     <script src="./js/state.js"></script>
     <script src="./js/utils.js"></script>
+    <script src="./js/combat.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

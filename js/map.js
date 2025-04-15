@@ -1,25 +1,42 @@
+
+
 const nodes = [
-    {id: 1, type: "combat", symbol: "⚔️"},
-    {id: 2, type: "shop", symbol: "🛒"},
-    {id: 3, type: "event", symbol: "❗"}
+    { id: 1, type: "combat", symbol: "👁️", label: "Specter Revealed" },
+    { id: 2, type: "shop", symbol: "🕯️", label: "Backstage Curio" },
+    { id: 3, type: "event", symbol: "🎭", label: "Whispers in the Wings" }
 ];
+
 
 //render node selection
 function renderMap() {
     const mapContainer = document.getElementById("map-container");
-    mapContainer.innerHTML = ""; // Clear previous content if there
+    mapContainer.innerHTML = ""; // Clear previous content
 
-    for(const node of nodes) {
+    // Create a wrapper div for node layout
+    const mapView = document.createElement("div");
+    mapView.className = "map-view";
+
+    for (const node of nodes) {
         const nodeElement = document.createElement("div");
         nodeElement.className = "node" + " " + node.type;
         nodeElement.innerHTML = `<span>${node.symbol}</span>`;
         nodeElement.setAttribute("data-id", node.id);
+
         nodeElement.addEventListener("click", () => {
-            loadNodeScene(node);
+            if (node.type === "combat") {
+                loadCombatScene();
+            } else {
+                loadNodeScene(node); // Load the node scene
+
+            }
         });
-        mapContainer.appendChild(nodeElement);
+
+        mapView.appendChild(nodeElement);
     }
+
+    mapContainer.appendChild(mapView); // Add the node row to the container
 }
+
 
 function loadNodeScene(node) {
     const mapContainer = document.getElementById("map-container");
@@ -32,13 +49,13 @@ function loadNodeScene(node) {
 
     switch(node.type) {
         case "combat":
-            title.textContent = "Encouter!";
+            title.textContent = "👁️ An Audience Has Awakened...";
             break;
         case "shop":
-            title.textContent = "Welcome to my shop!";
+            title.textContent = "🕯️ The Curio Vault Cracks Open...";
             break;
         case "event":
-            title.textContent = "A mysterious event... What could it be?";
+            title.textContent = "🎭 A Whisper Dances Through the Wings...";
             break;
         default:
             title.textContent = "Unknown Node";
