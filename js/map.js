@@ -1,4 +1,6 @@
-
+import { renderInventory } from "./ui.js";
+import { loadCombatScene } from "./combat.js"; // Import the combat scene function
+import { combatState } from "./state.js"; // Import the combat state
 
 const nodes = [
     { id: 1, type: "combat", symbol: "👁️", label: "Specter Revealed" },
@@ -8,7 +10,7 @@ const nodes = [
 
 
 //render node selection
-function renderMap() {
+export function renderMap() {
     const mapContainer = document.getElementById("map-container");
     mapContainer.innerHTML = ""; // Clear previous content
 
@@ -38,7 +40,7 @@ function renderMap() {
 }
 
 
-function loadNodeScene(node) {
+export function loadNodeScene(node) {
     const mapContainer = document.getElementById("map-container");
     mapContainer.innerHTML = "";
 
@@ -63,4 +65,5 @@ function loadNodeScene(node) {
 
     nodeElement.appendChild(title);
     mapContainer.appendChild(nodeElement);
+    renderInventory(); // Call renderInventory to display the inventory sidebar
 }

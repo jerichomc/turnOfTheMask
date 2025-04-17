@@ -1,126 +1,119 @@
+// ===== combat.js =====
 
-const combatState = {
-    masked: {
-      sanity: 10,
-      maxSanity: 10,
-      echo: 3,
-      maxEcho: 6,
-      isGuarding: false
-    },
-    aberration: {
-      vitality: 10,
-      maxVitality: 10
-    },
-    scene: 1
-  };
-  
+import { combatState, applyMaskEffect, applyMaskPassives, unapplyMaskPassives } from "./state.js";
+import { renderInventory } from "./ui.js";
 
-function loadCombatScene() {
-    const mapContainer = document.getElementById("map-container");
-    mapContainer.innerHTML = ""; // Clear previous content
+export function loadCombatScene() {
+  const mapContainer = document.getElementById("map-container");
+  mapContainer.innerHTML = "";
 
-    const sceneDiv = document.createElement("div"); // Create a new div for the scene
-    sceneDiv.className = "scene"; //adds a class to the div
+  const sceneDiv = document.createElement("div");
+  sceneDiv.className = "scene";
 
-    const title = document.createElement("h2"); // Create a title element
-    title.textContent = `An Aberration Appears...` // Set the title text
+  const title = document.createElement("h2");
+  title.textContent = `An Aberration Appears...`;
 
-    const stats = document.createElement("div");
-    stats.innerHTML = `
-        <p>Sanity: ${combatState.masked.sanity} / ${combatState.masked.maxSanity}</p>
-        <p>Echo: ${combatState.masked.echo} / ${combatState.masked.maxEcho}</p>
-        <p>Enemy Vitality: ${combatState.aberration.vitality} / ${combatState.aberration.maxVitality}</p>
-        <p>Scene: ${combatState.scene}</p>
-        `;
+  const stats = document.createElement("div");
+  stats.innerHTML = `
+    <p>Sanity: ${combatState.masked.sanity} / ${combatState.masked.maxSanity}</p>
+    <p>Echo: ${combatState.masked.echo} / ${combatState.masked.maxEcho}</p>
+    <p>Enemy Vitality: ${combatState.aberration.vitality} / ${combatState.aberration.maxVitality}</p>
+    <p>Scene: ${combatState.scene}</p>
+  `;
 
+  const actionBar = document.createElement("div");
+  actionBar.className = "action-bar";
 
-    const actions = document.createElement("div"); // Create a div for actions
-    actions.className = "combat-actions"; //adds a class to the div
+  const buttons = [
+    { label: "Invoke Lash (2)", action: "lash" },
+    { label: "Dodge (1)", action: "dodge" },
+    { label: "Compose (+1)", action: "compose" },
+    { label: "Switch Mask (1)", action: "switchMask" }
+  ];
 
-    const invokeLash = document.createElement("button"); // Create a button for invoking lash
-    invokeLash.textContent = "Invoke Lash (2)"; // Set button text
-    invokeLash.onclick = () => performInvocation("lash"); // Set button action
+  buttons.forEach(btn => {
+    const b = document.createElement("button");
+    b.textContent = btn.label;
+    b.onclick = () => performInvocation(btn.action);
+    actionBar.appendChild(b);
+  });
 
-    const dodgeButton = document.createElement("button"); // Create a button for dodging
-    dodgeButton.textContent = "Dodge (1)"; // Set button text
-    dodgeButton.onclick = () => performInvocation("dodge"); // Set button action
+  // Mask specific abilities
+  const equipped = combatState.masked.masks[0];
+  if (equipped === "resonantShroud") {
+    const btn = document.createElement("button");
+    btn.textContent = "Resonate (3)";
+    btn.onclick = () => performInvocation("resonate");
+    actionBar.appendChild(btn);
+  }
+  if (equipped === "aethericDiadem") {
+    const btn = document.createElement("button");
+    btn.textContent = "Aetheric Strike (3)";
+    btn.onclick = () => performInvocation("aethericStrike");
+    actionBar.appendChild(btn);
+  }
 
-    const composeButton = document.createElement("button"); // Create a button for composing
-    composeButton.textContent = "Compose (+1)"; // Set button text
-    composeButton.onclick = () => performInvocation("compose"); // Set button action
+  sceneDiv.appendChild(title);
+  sceneDiv.appendChild(stats);
+  sceneDiv.appendChild(actionBar);
+  mapContainer.appendChild(sceneDiv);
 
-    actions.appendChild(invokeLash); // Append the button to the actions div
-    actions.appendChild(dodgeButton); // Append the button to the actions div
-    actions.appendChild(composeButton); // Append the button to the actions div
-    sceneDiv.appendChild(title); // Append the title to the scene div
-    sceneDiv.appendChild(stats); // Append the stats to the scene div
-    sceneDiv.appendChild(actions); // Append the actions to the scene div
-    mapContainer.appendChild(sceneDiv); // Append the scene div to the map container
+  renderInventory();
 }
 
-function performInvocation(type) {
-    const masked = combatState.masked; // Get the masked state from combatState
-    const aberration = combatState.aberration; // Get the aberration state from combatState
+export function performInvocation(type) {
+  const masked = combatState.masked;
+  const aberration = combatState.aberration;
 
-    if (type === "lash"){
-        if (masked.echo >= 2){
-            masked.echo -= 2; // Deduct 2 from the masked echo
-            aberration.vitality -= 2;
-        } else {
-            alert("Echo is feeling low..."); // Alert if not enough echo
-            return;
-        }
-    }
+  if (type === "switchMask") {
+    if (masked.echo < 1) return alert("Echo is feeling low...");
+    masked.echo -= 1;
+    const [current, carried] = masked.masks;
+    unapplyMaskPassives(current);
+    masked.masks = [carried, current];
+    applyMaskPassives(masked.masks[0]);
+  } else if (type === "lash") {
+    if (masked.echo < 2) return alert("Echo is feeling low...");
+    masked.echo -= 2;
+    aberration.vitality -= 2;
+  } else if (type === "dodge") {
+    if (masked.echo < 1) return alert("Echo is feeling low...");
+    masked.echo -= 1;
+    masked.isGuarding = true;
+  } else if (type === "compose") {
+    masked.echo = Math.min(masked.echo + 1, masked.maxEcho);
+    applyMaskEffect("compose");
+  } else {
+    const success = applyMaskEffect(type);
+    if (!success) return;
+  }
 
-    else if(type === "dodge") {
-        if (masked.echo >= 1) {
-            masked.echo -= 1;
-            masked.isGuarding = true; // Set the masked state to guarding
+  // Enemy attack
+  if (aberration.vitality > 0) {
+    let damage = 2;
+    if (masked.isGuarding) damage -= 1;
+    masked.sanity -= Math.max(0, damage);
+    masked.isGuarding = false;
+  }
 
-        } else {
-            alert("Echo is feeling low..."); // Alert if not enough echo
-            return;
-        }
-    }
+  masked.echo = Math.min(masked.echo + 1, masked.maxEcho);
+  combatState.scene++;
 
-    else if(type === "compose") {
-        masked.echo = Math.min(masked.echo + 1, masked.maxEcho); // Increase echo but not over max  
-    }
+  if (aberration.vitality <= 0) return endCombat("victory");
+  if (masked.sanity <= 0) return endCombat("defeat");
 
-    //enemy attacks if not dead
-    if (aberration.vitality > 0) {
-        let damage = 2; // Set damage to 2
-
-        if(masked.isGuarding) {
-            damage -= 1; // Reduce damage if guarding
-        }
-
-        masked.sanity -= damage;
-        masked.isGuarding = false; // Reset guarding state
-    }
-
-    // gain 1 ech each turn up to max
-    masked.echo = Math.min(masked.echo + 1, masked.maxEcho); // Increase echo but not over max
-
-    //advance scene number
-    combatState.scene++;
-
-    //check for end of combat
-    if (masked.sanity <= 0) {
-        endCombat("Eradictated"); // End combat if sanity is 0
-        return;
-    }
-
-    loadCombatScene(); // Load the next combat scene
+  loadCombatScene();
 }
 
 function endCombat(result) {
-    const mapContainer = document.getElementById("map-container");
-    mapContainer.innerHTML = ""; // Clear previous content
+  const mapContainer = document.getElementById("map-container");
+  mapContainer.innerHTML = "";
 
-    const message = document.createElement("h2"); // Create a new for the message
-    message.textContent = result === "victory" ? "The Aberration is silenced..." : "Your sanity shatters...";
+  const message = document.createElement("h2");
+  message.textContent =
+    result === "victory"
+      ? "The Aberration is silenced..."
+      : "Your sanity shatters...";
 
-    mapContainer.appendChild(message); // Append the message to the map container
-
+  mapContainer.appendChild(message);
 }
