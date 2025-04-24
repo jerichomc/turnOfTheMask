@@ -19,10 +19,17 @@ export function loadCombatScene() {
   const title = document.createElement("h2");
   title.textContent = `Scene ${combatState.scene}: An Aberration Appears...`;
 
-  const stats = document.createElement("div");
-  stats.innerHTML = `
-    <p>Enemy Vitality: ${combatState.aberration.vitality} / ${combatState.aberration.maxVitality}</p>
-  `;
+  //===enemy health ====
+  const enemyHealthBar = document.createElement("div");
+  enemyHealthBar.className = "enemy-health-bar";
+
+  const enemyHealthFill = document.createElement("div");
+  enemyHealthFill.className = "enemy-health-fill";
+  enemyHealthFill.style.width = `${(combatState.aberration.vitality
+     / combatState.aberration.maxVitality) * 100}%`;
+
+  enemyHealthBar.appendChild(enemyHealthFill);
+  sceneDiv.appendChild(enemyHealthBar);
 
   // ===== Action Bar =====
   const actionBar = document.createElement("div");
@@ -39,6 +46,13 @@ export function loadCombatScene() {
   healthFill.style.width = `${(combatState.masked.sanity / combatState.masked.maxSanity) * 100}%`;
   healthFill.textContent = `${combatState.masked.sanity} / ${combatState.masked.maxSanity}`;
   healthBar.appendChild(healthFill);
+
+  if (combatState.masked.sanity / combatState.masked.maxSanity < 0.3) {
+    healthBar.classList.add("low-health"); // ✅ Change this to healthBar
+  } else {
+    healthBar.classList.remove("low-health");
+  }
+  
 
   const echoOrbs = document.createElement("div");
   echoOrbs.className = "echo-orbs";
@@ -84,7 +98,6 @@ export function loadCombatScene() {
 
   // ===== DOM Assembly =====
   sceneDiv.appendChild(title);
-  sceneDiv.appendChild(stats);
   mapContainer.appendChild(sceneDiv);
   mapContainer.appendChild(actionBar);
 
@@ -123,6 +136,7 @@ export function performInvocation(type) {
   } else if (type === "compose") {
     masked.echo = Math.min(masked.echo + 1, masked.maxEcho);
     applyMaskEffect("compose");
+    updateEchoOrbs();
     logMessage("You invoked Compose!");
   } else {
     const success = applyMaskEffect(type);
@@ -131,7 +145,7 @@ export function performInvocation(type) {
 
   setTimeout(() => {
     if (aberration.vitality > 0) {
-      let damage = 2;
+      let damage = 3;
       if (masked.isGuarding) damage -= 1;
       masked.sanity -= Math.max(0, damage);
       masked.isGuarding = false;
